@@ -99,7 +99,7 @@ app.get('/getSelf', (req,res) => {
 })
 
 app.get('/players', (req,res) => {
-    db.manyOrNone('SELECT player_id, username FROM players').then( data => {
+    db.manyOrNone('SELECT player_id, username, teamname, team_acr FROM players LEFT JOIN TEAMS on team_acr = acronym').then( data => {
         res.send(data)
     })
 })
