@@ -3,8 +3,10 @@ import { config } from 'dotenv';
 import passport from 'passport';
 import OAuth2Strategy from 'passport-oauth2';
 import session from 'express-session';
-import { Client } from 'osu-web.js';
+import { buildUrl, Client } from 'osu-web.js';
 import pgPromise from 'pg-promise';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 config();
 const pgp = pgPromise();
@@ -16,11 +18,26 @@ const db = pgp({
     password: process.env.DB_PASSWORD
 })
 const app = express();
+
+app.use(cors({
+    credentials: true
+}));
+app.use(bodyParser.json());
+
+app.get('/', (req, res) => {
+    res.send('Server online')
+})
+
+app.get('/test', (req,res) => {
+    console.log('test fetch received')
+    res.send({test: 'test'})
+})
+
 app.use(session({
     secret: process.env.COOKIE_KEY,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true }
+    cookie: { secure: false }
 }));
 app.use(passport.session())
 
@@ -58,19 +75,26 @@ passport.deserializeUser(function (user, cb) {
 app.get('/auth', passport.authenticate('oauth2'))
 
 app.get('/auth/cb', passport.authenticate('oauth2', { failureRedirect: '/' }), (req, res) => {
-    res.send('Logged in as ' + req.user.username)
+    req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
+    res.redirect('http://localhost:4200/')
 })
 
 /**
- * Redirect unauthorized users to sign in
+ * Prevents non logged in users from accessing these APIs
  */
 app.use((req, res, next) => {
     if (req.user) next()
-    else res.redirect('/auth')
+    else res.sendStatus(401);
   })
 
-app.get('/', (req, res) => {
-    res.send('Server online')
+app.get('/getSelf', (req,res) => {
+    let api = new Client(req.user.token);
+    api.users.getSelf().then(userResponse => {
+        res.send({
+            username: userResponse.username,
+            id: userResponse.id
+        })
+    })
 })
 
 app.post('/tournament/register', (req,res) => {
@@ -80,7 +104,9 @@ app.post('/tournament/register', (req,res) => {
             id: userResponse.username,
             username: userResponse.id
         })
-        .then( () => res.sendStatus(201))
+        .then( () => {
+            res.sendStatus(201)
+        })
         .catch( error => {
             res.send(error);
             res.status(400);
@@ -88,9 +114,8 @@ app.post('/tournament/register', (req,res) => {
     })
     .catch( error => {
         res.status(401);
-        res.redirect('/auth')
     })
 })
 
 
-app.listen(process.env.PORT, () => console.log('Server up at http://localhost:3000/'))
+app.listen(process.env.PORT, () => console.log(`Server up at http://localhost:${process.env.PORT}/`))
