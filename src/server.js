@@ -46,6 +46,7 @@ passport.use(new OAuth2Strategy({
     tokenURL: 'https://osu.ppy.sh/oauth/token',
     clientID: process.env.OSU_CLIENT_ID,
     clientSecret: process.env.OSU_CLIENT_SECRET,
+    scope: ['identify', 'public'],
     callbackURL: "http://localhost:3000/auth/cb"
 },
     function (_accessToken, _refreshToken, profile, cb) {
@@ -75,7 +76,7 @@ passport.deserializeUser(function (user, cb) {
 app.get('/auth', passport.authenticate('oauth2'))
 
 app.get('/auth/cb', passport.authenticate('oauth2', { failureRedirect: '/' }), (req, res) => {
-    req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
+    // req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
     res.redirect('http://localhost:4200/')
 })
 
