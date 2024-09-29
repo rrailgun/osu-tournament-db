@@ -93,8 +93,20 @@ app.get('/getSelf', (req,res) => {
     api.users.getSelf().then(userResponse => {
         res.send({
             username: userResponse.username,
-            id: userResponse.id
+            player_id: userResponse.id
         })
+    })
+})
+
+app.get('/players', (req,res) => {
+    db.manyOrNone('SELECT player_id, username FROM players').then( data => {
+        res.send(data)
+    })
+})
+
+app.get('/teams', (req,res) => {
+    db.manyOrNone('SELECT teamname, captain FROM teams').then( data => {
+        res.send(data)
     })
 })
 
