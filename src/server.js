@@ -104,6 +104,12 @@ app.get('/players', (req,res) => {
     })
 })
 
+app.get('/free-agents', (req,res) => {
+    db.manyOrNone('SELECT player_id, username FROM players WHERE team_acr IS NULL').then( data => {
+        res.send(data)
+    })
+})
+
 app.get('/teams', (req,res) => {
     db.manyOrNone('SELECT teamname, captain FROM teams').then( data => {
         res.send(data)
