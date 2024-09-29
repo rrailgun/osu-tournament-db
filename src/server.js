@@ -102,8 +102,8 @@ app.post('/tournament/register', (req,res) => {
     let api = new Client(req.user.token);
     api.users.getSelf().then(userResponse => {
         db.none('INSERT INTO players(player_id, username) VALUES(${id}, ${username})', {
-            id: userResponse.username,
-            username: userResponse.id
+            id: userResponse.id,
+            username: userResponse.username
         })
         .then( () => {
             res.sendStatus(201)
