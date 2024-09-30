@@ -98,6 +98,34 @@ app.get('/getSelf', (req,res) => {
     })
 })
 
+app.get('/getBeatmapMetadata', (req,res) => {
+    let api = new Client(req.user.token);
+    db.oneOrNone('SELECT beatmap_id FROM maps', [], d => d.beatmap_id).then( beatmap_id => { 
+        api.beatmaps.getBeatmap(beatmap_id, 'osu').then( data => {
+            res.send({
+                // meta
+                beatmap_id: beatmap_id,
+                cover: data.beatmapset.id,
+                title: data.beatmapset.title,
+                diffname: data.version,
+                artist: data.beatmapset.artist,
+                mapper: data.beatmapset.creator,
+                mapper_id: data.user_id,
+                // main stats
+                star_rating: data.difficulty_rating,
+                bpm: data.bpm,
+                drain: data.total_length,
+                combo: data.max_combo,
+                // sub-stats
+                circle_size: data.cs,
+                approach_rate: data.ar,
+                overall_difficulty: data.accuracy,
+                drain_rate: data.drain
+            })
+        })
+    })
+})
+
 app.get('/players', (req,res) => {
     db.manyOrNone('SELECT player_id, username, teamname, team_acr FROM players LEFT JOIN TEAMS on team_acr = acronym').then( data => {
         res.send(data)
