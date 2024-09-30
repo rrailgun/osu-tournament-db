@@ -1,0 +1,55 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table players {
+  player_id varchar PK
+  username varchar
+  team_acr char(3) [ref: > teams.acronym]
+}
+
+Table staff {
+  user_id varchar PK
+  username varchar
+  role varchar
+}
+
+Table teams {
+  acronym char(3) PK
+  teamname varchar UNIQUE [not null]
+  captain varchar [ref: > players.player_id]
+  seed integer
+}
+
+Table tourney_round {
+  round_name varchar PK
+  round_acronym varchar [not null]
+}
+
+Table maps {
+  beatmap_id varchar PK
+  tourney_round_name varchar [ref: > tourney_round.round_name]
+  slot_name varchar [ref: > mappools.slot_name]
+}
+
+Table mappools {
+  slot_name varchar PK
+  mod_acronym varchar
+}
+
+Table matches {
+  match_id integer PK
+  match_date date
+  team1_acr char(3) [ref: > teams.acronym]
+  team2_acr char(3) [ref: > teams.acronym]
+  mp_id varchar
+  tourney_round_name varchar [ref: > tourney_round.round_name]
+  winning_team varchar
+  referee varchar [ref: > staff.user_id]
+}
+
+table player_scores {
+  match_id integer PK [ref: > matches.match_id]
+  beatmap_id varchar PK [ref: > maps.beatmap_id]
+  player_id varchar PK [ref: > players.player_id]
+  score integer [not null]
+}
