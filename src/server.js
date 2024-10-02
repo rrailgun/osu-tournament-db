@@ -99,7 +99,7 @@ app.get('/getSelf', (req,res) => {
 })
 
 app.get('/players', (req,res) => {
-    db.manyOrNone('SELECT player_id, username, teamname, team_acr FROM players LEFT JOIN TEAMS on team_acr = acronym').then( data => {
+    db.manyOrNone('SELECT player_id, username, teamname FROM players LEFT JOIN TEAMS on team_acr = acronym').then( data => {
         res.send(data)
     })
 })
@@ -111,7 +111,7 @@ app.get('/free-agents', (req,res) => {
 })
 
 app.get('/teams', (req,res) => {
-    db.manyOrNone('SELECT teamname, captain FROM teams').then( data => {
+    db.manyOrNone("SELECT teamname, json_agg(json_build_object('username', username, 'player_id', player_id, 'teamname', teamname)) as players FROM players LEFT JOIN teams ON team_acr = acronym GROUP BY teamname").then( data => {
         res.send(data)
     })
 })
