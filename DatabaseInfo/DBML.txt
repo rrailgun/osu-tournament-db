@@ -16,8 +16,13 @@ Table staff {
 Table teams {
   acronym char(3) PK
   teamname varchar UNIQUE [not null]
-  captain varchar [ref: > players.player_id]
+  captain varchar [not null, ref: > players.player_id]
   seed integer
+}
+
+Table team_join_req {
+  team_acr varchar PK [ref: > teams.acronym]
+  player_id varchar PK [ref: > players.player_id]
 }
 
 Table tourney_round {

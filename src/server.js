@@ -116,6 +116,32 @@ app.get('/teams', (req,res) => {
     })
 })
 
+app.post('/teams/request', (req,res) => {
+    // Add trigger to check if player is already on a team
+    db.none('INSERT INTO team_join_req(team_acr, player_id) VALUES(${team}, ${id})', {
+        team: req.body.team_acr,
+        id: req.user.id
+    })
+    .then( () => {
+        res.sendStatus(201);
+    })
+    .catch(error => {
+        res.send(error);
+        res.status(400);
+    });
+})
+
+app.post('/teams/reply', (req,res) => {
+    //Need check to ensure its captain sending request for their team
+    if (req.body.accept) {
+
+    } else {
+        db.none('DELETE FROM team_join_req WHERE player_id = ${id} AND team_acr = ${team_acr}', {
+            id: req.body.id
+        })
+    }
+})
+
 app.post('/tournament/register', (req,res) => {
     let api = new Client(req.user.token);
     api.users.getSelf().then(userResponse => {

@@ -13,8 +13,14 @@ CREATE TABLE "staff" (
 CREATE TABLE "teams" (
   "acronym" char(3) PRIMARY KEY,
   "teamname" varchar UNIQUE NOT NULL,
-  "captain" varchar,
+  "captain" varchar NOT NULL,
   "seed" integer
+);
+
+CREATE TABLE "team_join_req" (
+  "team_acr" varchar,
+  "player_id" varchar,
+  PRIMARY KEY ("team_acr", "player_id")
 );
 
 CREATE TABLE "tourney_round" (
@@ -55,6 +61,10 @@ CREATE TABLE "player_scores" (
 ALTER TABLE "players" ADD FOREIGN KEY ("team_acr") REFERENCES "teams" ("acronym");
 
 ALTER TABLE "teams" ADD FOREIGN KEY ("captain") REFERENCES "players" ("player_id");
+
+ALTER TABLE "team_join_req" ADD FOREIGN KEY ("team_acr") REFERENCES "teams" ("acronym");
+
+ALTER TABLE "team_join_req" ADD FOREIGN KEY ("player_id") REFERENCES "players" ("player_id");
 
 ALTER TABLE "maps" ADD FOREIGN KEY ("tourney_round_name") REFERENCES "tourney_round" ("round_name");
 
